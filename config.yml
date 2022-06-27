@@ -1,0 +1,296 @@
+mqtt:
+  # Required: host name
+  host: 192.DELETED
+  # Optional: port (default: shown below)
+  port: 1883
+  # Optional: topic prefix (default: shown below)
+  # WARNING: must be unique if you are running multiple instances
+  topic_prefix: frigate
+  # Optional: client id (default: shown below)
+  # WARNING: must be unique if you are running multiple instances
+  client_id: frigateunraid
+  # Optional: user
+  user: DELETED
+  # Optional: password
+  # NOTE: Environment variables that begin with 'FRIGATE_' may be referenced in {}.
+  #       eg. password: '{FRIGATE_MQTT_PASSWORD}'
+  password: DELETED
+  # Optional: interval in seconds for publishing stats (default: shown below)
+  stats_interval: 60  
+##########################################
+# Optional: RTMP re-stream configuration
+rtmp:
+  # Required: Enable the RTMP stream (default: True)
+  enabled: True
+#
+#environment:
+      # FRIGATE_RTSP_PASSWORD: "superpass123"
+#      PLUS_API_KEY: DELETED38750addeee55d01bd4
+# Optional: birdseye configuration
+birdseye:
+  # Optional: Enable birdseye view (default: shown below)
+  enabled: True
+  # Optional: Width of the output resolution (default: shown below)
+  #width: 768
+  # Optional: Height of the output resolution (default: shown below)
+  #height: 1024
+  # Optional: Encoding quality of the mpeg1 feed (default: shown below)
+  # 1 is the highest quality, and 31 is the lowest. Lower quality feeds utilize less CPU resources.
+  quality: 15
+  # Optional: Mode of the view. Available options are: objects, motion, and continuous
+  #   objects - cameras are included if they have had a tracked object within the last 30 seconds
+  #   motion - cameras are included if motion was detected in the last 30 seconds
+  #   continuous - all cameras are included always
+  mode: objects
+#
+record:
+  # Optional: Enable recording (default: shown below)
+  enabled: True
+  # Optional: Number of days to retain (default: shown below)
+  #retain_days: 1
+  # Optional: Event recording settings
+  events:
+    # Optional: Maximum length of time to retain video during long events. (default: shown below)
+    # NOTE: If an object is being tracked for longer than this amount of time, the cache
+    #       will begin to expire and the resulting clip will be the last x seconds of the event unless retain_days under record is > 0.
+    max_seconds: 300
+    # Optional: Number of seconds before the event to include (default: shown below)
+    pre_capture: 15
+    # Optional: Number of seconds after the event to include (default: shown below)
+    post_capture: 15
+    # Optional: Objects to save recordings for. (default: all tracked objects)
+    objects:
+      - person
+      #- car
+      - cat
+      #- dog
+      #- bird
+      #- motorcycle
+      #- bicycle
+    # Optional: Restrict recordings to objects that entered any of the listed zones (default: no required zones)
+    required_zones: []
+    # Optional: Retention settings for events
+    retain:
+      # Required: Default retention days (default: shown below)
+      default: 3
+      # Optional: Per object retention days
+      objects:
+        person: 7
+        cat: 7
+#
+# Optional: Configuration for the jpg snapshots written to the clips directory for each event
+# NOTE: Can be overridden at the camera level
+snapshots:
+  # Optional: Enable writing jpg snapshot to /media/frigate/clips (default: shown below)
+  # This value can be set via MQTT and will be updated in startup based on retained value
+  enabled: True
+  # Optional: clean copy
+  clean_copy: True
+  # Optional: print a timestamp on the snapshots (default: shown below)
+  timestamp: True
+  # Optional: draw bounding box on the snapshots (default: shown below)
+  bounding_box: True
+  # Optional: crop the snapshot (default: shown below)
+  crop: false
+  # Optional: height to resize the snapshot to (default: original size)
+  #height: 2048
+  # Optional: Restrict snapshots to objects that entered any of the listed zones (default: no required zones)
+  required_zones: []
+  # Optional: Camera override for retention settings (default: global values)
+  retain:
+    # Required: Default retention days (default: shown below)
+    default: 3
+    # Optional: Per object retention days
+    objects:
+      person: 7
+      cat: 7
+
+# Optional: Object configuration
+# NOTE: Can be overridden at the camera level
+objects:
+  # Optional: list of objects to track from labelmap.txt (default: shown below)
+  track:
+    - person
+    #- car
+    #- dog
+    - cat
+    #- bird
+    #- bicycle
+    #- motorcycle
+  # Optional: mask to prevent all object types from being detected in certain areas (default: no mask)
+  # Checks based on the bottom center of the bounding box of the object.
+  # NOTE: This mask is COMBINED with the object type specific mask below
+  #mask: 0,0,1000,0,1000,200,0,200
+  # Optional: filters to reduce false positives for specific object types
+  filters:
+    person:
+      # Optional: minimum width*height of the bounding box for the detected object (default: 0)
+      #min_area: 5000
+      # Optional: maximum width*height of the bounding box for the detected object (default: 24000000)
+      #max_area: 100000
+      # Optional: minimum score for the object to initiate tracking (default: shown below)
+      min_score: 0.5
+      # Optional: minimum decimal percentage for tracked object's computed score to be considered a true positive (default: shown below)
+      threshold: 0.8
+      # Optional: mask to prevent this object type from being detected in certain areas (default: no mask)
+      # Checks based on the bottom center of the bounding box of the object
+      #mask: 0,0,1000,0,1000,200,0,200
+    cat:
+      # Optional: minimum width*height of the bounding box for the detected object (default: 0)
+      #min_area: 5000
+      # Optional: maximum width*height of the bounding box for the detected object (default: 24000000)
+      #max_area: 100000
+      # Optional: minimum score for the object to initiate tracking (default: shown below)
+      min_score: 0.2
+      # Optional: minimum decimal percentage for tracked object's computed score to be considered a true positive (default: shown below)
+      threshold: 0.4
+      # Optional: mask to prevent this object type from being detected in certain areas (default: no mask)
+      # Checks based on the bottom center of the bounding box of the object
+      #mask: 0,0,1000,0,1000,200,0,200      
+
+#
+cameras:
+  kitchen:
+    ffmpeg:
+      #input_args: -c:v h264_cuvid -avoid_negative_ts make_zero -fflags nobuffer -flags low_delay -strict experimental -fflags +genpts+discardcorrupt -use_wallclock_as_timestamps 1 
+      #output_args: 
+          #record: -filter:v -fps 5
+
+      inputs:
+        - path: rtsp://DELETED/ch0_0.h264
+          roles:
+            - rtmp
+            - record            
+        - path: rtsp://DELETED207/ch0_1.h264
+          roles:
+            - detect
+    detect:
+      enabled: true
+      max_disappeared: 25
+      width: 640
+      height: 360
+      fps: 5
+    best_image_timeout: 10
+  livingroom:
+    ffmpeg:
+      #input_args: -c:v h264_cuvid -avoid_negative_ts make_zero -fflags nobuffer -flags low_delay -strict experimental -fflags +genpts+discardcorrupt -use_wallclock_as_timestamps 1 
+      #output_args: 
+          #record: -filter:v -fps 5
+
+      inputs:
+        - path: rtsp://DELETED206/ch0_0.h264
+          roles:
+            - rtmp
+            - record            
+        - path: rtsp://DELETED206/ch0_1.h264
+          roles:
+            - detect
+    detect:
+      enabled: True
+      max_disappeared: 25
+      width: 640
+      height: 360
+      fps: 5
+    best_image_timeout: 10
+#  water:
+#    ffmpeg:
+#      #input_args: -c:v h264_cuvid -avoid_negative_ts make_zero -fflags nobuffer -flags low_delay -strict experimental -fflags +genpts+discardcorrupt -use_wallclock_as_timestamps 1 
+#      #output_args: 
+#          #record: -filter:v -fps 5
+#
+#      inputs:
+#        - path: rtsp://DELETED205/ch0_0.h264
+#          roles:
+#            - rtmp
+#            - record            
+#        - path: rtsp://DELETED205/ch0_1.h264
+#          roles:
+#            - detect
+#    detect:
+#      enabled: True
+#      max_disappeared: 25
+#      width: 640
+#      height: 360
+#      fps: 5
+#    best_image_timeout: 10    
+##########################################
+# https://github.com/blakeblackshear/frigate/blob/v0.9.0-rc4/docs/docs/configuration/nvdec.md
+# Optional: ffmpeg configuration
+ffmpeg:
+    # Optional: global ffmpeg args (default: shown below)
+  #global_args: -hide_banner -loglevel warning
+  # Optional: global hwaccel args (default: shown below)
+  # NOTE: See hardware acceleration docs for your specific device
+  hwaccel_args: -c:v h264_cuvid -hwaccel_device /dev/dri/renderD128 -hwaccel_output_format yuv420p
+  # input_args: -avoid_negative_ts make_zero -fflags +genpts+discardcorrupt -rtsp_transport tcp -stimeout 5000000 -use_wallclock_as_timestamps 1 -c:v h264_cuvid
+  input_args: -avoid_negative_ts make_zero -fflags +genpts+discardcorrupt -rtsp_transport tcp -stimeout 5000000 -use_wallclock_as_timestamps 1
+#    - -hwaccel
+#    - vaapi
+#    - -hwaccel_device
+#    - /dev/dri/renderD128
+#    - -hwaccel_output_format
+#    - yuv420p
+  # Optional: global input args (default: shown below)
+  #input_args: -avoid_negative_ts make_zero -fflags +genpts+discardcorrupt -rtsp_transport tcp -stimeout 5000000 -use_wallclock_as_timestamps 1
+  # Optional: global output args
+  output_args:
+    # Optional: output args for detect streams (default: shown below)
+    #detect: -f rawvideo -pix_fmt yuv420p
+    # Optional: output args for record streams (default: shown below)
+    #record: -f segment -segment_time 10 -segment_format mp4 -reset_timestamps 1 -strftime 1 -c copy
+    # Optional: output args for rtmp streams (default: shown below)
+    #rtmp: -c copy -f flv
+# NEW
+    # Optional: output args for detect streams (default: shown below)
+    detect: -f rawvideo -pix_fmt yuv420p -filter:v fps=fps=5
+    # Optional: output args for record streams (default: shown below)
+    record: -f segment -segment_time 60 -segment_format mp4 -reset_timestamps 1 -strftime 1 -c copy -an
+    # Optional: output args for clips streams (default: shown below)
+    # clips: -f segment -segment_time 10 -segment_format mp4 -reset_timestamps 1 -strftime 1 -c copy -an
+    # Optional: output args for rtmp streams (default: shown below)
+    #rtmp: -c copy -f flv
+    rtmp: -c copy -map 0 -f flv    
+#
+#
+detectors:
+  coral:
+    type: edgetpu
+    device: usb
+#
+objects:
+  track:
+    - person
+    - cat
+#
+logger:
+  default: warning
+  logs:
+    frigate.mqtt: error
+    frigate.edgetpu: info
+    #frigate.mqtt: info
+#    
+# Optional: in-feed timestamp style configuration
+# NOTE: Can be overridden at the camera level
+timestamp_style:
+  # Optional: Position of the timestamp (default: shown below)
+  #           "tl" (top left), "tr" (top right), "bl" (bottom left), "br" (bottom right)
+  position: "bl"
+  # Optional: Format specifier conform to the Python package "datetime" (default: shown below)
+  #           Additional Examples:
+  #             german: "%d.%m.%Y %H:%M:%S"
+  format: "%d/%m/%Y %H:%M:%S"
+  # Optional: Color of font
+  color:
+    # All Required when color is specified (default: shown below)
+    red: 255
+    green: 255
+    blue: 255
+  # Optional: Line thickness of font (default: shown below)
+  thickness: 2
+  # Optional: Effect of lettering (default: shown below)
+  #           None (No effect),
+  #           "solid" (solid background in inverse color of font)
+  #           "shadow" (shadow for font)
+  effect: solid
+#  
+#     
